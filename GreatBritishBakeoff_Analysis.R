@@ -17,11 +17,18 @@ episodes <- read.csv("data/Episodes.csv")
 outcomes <- read.csv("data/Outcomes.csv")
 seasons <- read.csv("data/Seasons.csv")
 
-## Process the data ----
-
-# Call the appropriate packages 
+# Combine individual data sets into a single file "dat"
 library(dplyr)
-
-# List all CSV files in the "data" folder
 dat <- bind_rows(bakers, challenges, episodes, outcomes, seasons)
+
+# Save dat as an Excel file
+install.packages('writexl')
+library(writexl)
+write_xlsx(dat, "data/dat.xlsx")
+
+# Inspect the data set
+View(dat)
+
+## Clean the data ---- 
+
 
