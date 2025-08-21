@@ -17,3 +17,11 @@ episodes <- read.csv("data/Episodes.csv")
 outcomes <- read.csv("data/Outcomes.csv")
 seasons <- read.csv("data/Seasons.csv")
 
+## Process the data ----
+
+# Call the appropriate packages 
+library(dplyr)
+
+# List all CSV files in the "data" folder
+dat <- bind_rows(bakers, challenges, episodes, outcomes, seasons)
+
