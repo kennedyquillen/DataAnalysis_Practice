@@ -11,15 +11,15 @@ fs::dir_create(c("R", "data", "outputs/figures",
                  "outputs/models", "resources"))
 
 ## Import the data ----
-bakers <- read.csv("data/Bakers.csv")
+bakers     <- read.csv("data/Bakers.csv")
 challenges <- read.csv("data/ChallengeBakes.csv")
-episodes <- read.csv("data/Episodes.csv")
-outcomes <- read.csv("data/Outcomes.csv")
-seasons <- read.csv("data/Seasons.csv")
+episodes   <- read.csv("data/Episodes.csv")
+outcomes   <- read.csv("data/Outcomes.csv")
+seasons    <- read.csv("data/Seasons.csv")
 
 # Combine individual data sets into a single file "dat"
 library(dplyr)
-dat <- bind_rows(bakers, challenges, episodes, outcomes, seasons)
+dat        <- bind_rows(bakers, challenges, episodes, outcomes, seasons)
 
 # Save dat as an Excel file
 install.packages('writexl')
