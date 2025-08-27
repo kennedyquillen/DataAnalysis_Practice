@@ -204,7 +204,7 @@ showstoppers_by_category <- ggplot(signature_summary,
     ) +
     theme_minimal() +
     theme(
-        axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text.x = element_text(angle = 90, hjust = 1),
         axis.title.x = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold"),
         plot.title = element_text(face = "bold", hjust = 0.5),
