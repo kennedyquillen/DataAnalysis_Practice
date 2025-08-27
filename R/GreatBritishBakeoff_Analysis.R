@@ -76,6 +76,47 @@ dat_clean  <- dat_clean %>%
 # "Bakers.csv" from the data set (rows 1-168)
 dat_clean  <- dat_clean[-c(1:168), ]
 
+# Carry information about viewership and ratings from 'episodes' to larger data set
+# Ensure Season and Episode are characters for joining
+library(dplyr)
+
+# Ensure Season and Episode are character
+dat_clean <- dat_clean %>%
+    mutate(
+        Season = as.character(Season),
+        Episode = as.character(Episode)
+    )
+
+# Create lookup table from episodes
+episodes_lookup <- episodes %>%
+    select(Season, Episode, MyRating..out.of.10., MyViewership) %>%
+    distinct() %>%
+    mutate(
+        Season = as.character(Season),
+        Episode = as.character(Episode)
+    )
+
+# Fill missing values in dat_clean based on Season + Episode
+dat_clean <- dat_clean %>%
+    rowwise() %>%
+    mutate(
+        MyRating..out.of.10. = ifelse(
+            is.na(MyRating..out.of.10.),
+            episodes_lookup$MyRating..out.of.10.[
+                episodes_lookup$Season == Season & episodes_lookup$Episode == Episode
+            ],
+            MyRating..out.of.10.
+        ),
+        MyViewership = ifelse(
+            is.na(MyViewership),
+            episodes_lookup$MyViewership[
+                episodes_lookup$Season == Season & episodes_lookup$Episode == Episode
+            ],
+            MyViewership
+        )
+    ) %>%
+    ungroup()
+
 # Combine data so that each unique combination of Season+Episode+Baker has only 
 # one row of data
 dat_clean <- dat_clean %>%
@@ -433,3 +474,48 @@ summary_table
 # winning Star Baker. The confidence interval (0.59–0.74) confirms that this 
 # effect is reliable.
 
+### Question 1c - Which bake categories or techniques consistently achieve the highest average MyRating..out.of.10? ----
+
+# Load libraries
+library(dplyr)
+
+# Convert to numeric
+dat_showstopper_clean <- dat_showstopper_clean %>%
+    mutate(MyRating..out.of.10. = as.numeric(as.character(MyRating..out.of.10.)))
+
+# Group by bake category or technique and calculate average rating
+avg_ratings <- dat_showstopper_clean %>%
+    group_by(Category) %>%  
+    summarise(
+        avg_rating = mean(MyRating..out.of.10., na.rm = TRUE),
+        n = n()
+    ) %>%
+    arrange(desc(avg_rating))
+
+# View the results
+print(avg_ratings)
+
+# Visualize with barplot
+library(ggplot2)
+library(viridis)
+
+ratings_by_category <- ggplot(avg_ratings, aes(x = reorder(Category, avg_rating), y = avg_rating, fill = avg_rating)) +
+    geom_col() +
+    scale_fill_viridis_c(option = "viridis") +
+    labs(
+        title = "Average Rating by Bake Category",
+        x = "Bake Category",
+        y = "Average Rating (out of 10)",
+        fill = "Average Rating"
+    ) +
+    theme_minimal() +
+    theme(
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+        axis.title.y = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold"),
+        plot.title = element_text(face = "bold", hjust = 0.5),
+        legend.title = element_text(face = "bold"),
+        panel.grid = element_blank()
+    )
+
+print(ratings_by_category)
