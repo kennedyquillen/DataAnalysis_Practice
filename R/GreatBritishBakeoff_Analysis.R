@@ -519,3 +519,12 @@ ratings_by_category <- ggplot(avg_ratings, aes(x = reorder(Category, avg_rating)
     )
 
 print(ratings_by_category)
+
+#Save the plot
+ggsave(
+    filename = "outputs/figures/ratings_by_category.png",
+    plot = ratings_by_category,
+    width = 10,
+    height = 6,
+    dpi = 300
+)
