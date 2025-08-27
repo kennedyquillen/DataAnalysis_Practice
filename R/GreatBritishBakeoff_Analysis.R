@@ -520,7 +520,27 @@ ratings_by_category <- ggplot(avg_ratings, aes(x = reorder(Category, avg_rating)
 
 print(ratings_by_category)
 
-#Save the plot
+# boxplot 
+ratings_by_category_box <- ggplot(dat_showstopper_clean, aes(x = Category, y = MyRating..out.of.10., fill = Category)) +
+    geom_boxplot() +
+    scale_fill_viridis_d(option = "viridis") +
+    labs(
+        title = "Distribution of Ratings by Bake Category",
+        x = "Bake Category",
+        y = "Rating (out of 10)",
+        fill = "Bake Category"
+    ) +
+    theme_minimal() +
+    theme(
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1),
+        axis.title.x = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold"),
+        plot.title = element_text(face = "bold", hjust = 0.5),
+        legend.title = element_text(face = "bold"),
+        panel.grid = element_blank()
+    )
+
+#Save the plots
 ggsave(
     filename = "outputs/figures/ratings_by_category.png",
     plot = ratings_by_category,
@@ -528,3 +548,49 @@ ggsave(
     height = 6,
     dpi = 300
 )
+
+ggsave(
+    filename = "outputs/figures/ratings_by_category_box.png",
+    plot = ratings_by_category_box,
+    width = 10,
+    height = 6,
+    dpi = 300
+)
+
+# Does rating differ by category?
+library(dplyr)
+library(broom)
+
+# Step 1: Ensure the variables are in the correct format
+dat_showstopper_clean <- dat_showstopper_clean %>%
+    mutate(
+        Category = factor(Category),
+        MyRating..out.of.10. = as.numeric(MyRating..out.of.10.)
+    )
+
+# Step 2: Run one-way ANOVA
+anova_model <- aov(MyRating..out.of.10. ~ Category, data = dat_showstopper_clean)
+
+# Step 3: View ANOVA summary
+anova_summary <- summary(anova_model)
+anova_summary
+
+# Step 4: Tidy results into a clean table
+anova_table <- broom::tidy(anova_model)
+anova_table
+
+# Df Sum Sq Mean Sq F value   Pr(>F)    
+# Category      9   5.08  0.5646   4.833 2.42e-06 ***
+#     Residuals   996 116.35  0.1168                     
+# ---
+#     Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+# INTERPRETATION:
+# An analysis of variance (ANOVA) was conducted to test whether average ratings 
+# differ among bake categories. The results indicate a statistically significant 
+# effect of bake category on ratings (F₉,₉₉₆ = 4.83, p = 2.42 × 10⁻⁶), suggesting 
+# that some categories consistently receive higher or lower ratings than others. 
+# The residual variance was relatively large (Residuals Sum Sq = 116.35), but the 
+# effect of category is strong enough to detect meaningful differences in average 
+# ratings across the 10 categories tested. This finding supports the idea that the 
+# type of bake influences how it is rated by judges.
